@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth" style="scroll-padding-top: 64px;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương trình trải nghiệm sẻ chia cùng gia đình</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="qrcode.bundle.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            green: '#4CAF50',
+                            dark: '#2E7D32',
+                            light: '#E8F5E9',
+                            blue: '#0288D1',
+                            yellow: '#FFC107'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%234caf50" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+        }
+        .image-container img {
+            transition: transform 0.3s ease;
+        }
+        .image-container:hover img {
+            transform: scale(1.05);
+        }
+        /* Fallback background for images in case local files don't load in preview */
+        .img-fallback {
+            background-color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 0.875rem;
+            text-align: center;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800 pb-20 pt-0 sm:pb-8 sm:py-8 px-0 sm:px-4">
+
+    <!-- Language Selection Overlay -->
+    <div id="lang-overlay" class="fixed inset-0 z-[999] bg-black/40 backdrop-blur-xl flex flex-col items-center justify-center transition-opacity duration-500 hidden">
+        <div class="bg-white/20 backdrop-blur-md border border-white/30 p-10 rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] max-w-md w-full mx-4 text-center transform transition-transform scale-100">
+            <h2 class="text-3xl font-bold text-white mb-8 drop-shadow-md">Chọn ngôn ngữ<br/><span class="text-xl font-medium mt-2 block">언어를 선택하세요</span></h2>
+            <div class="space-y-4">
+                <button onclick="setLanguage('vi')" class="w-full py-4 px-6 bg-white/10 hover:bg-white/30 border border-white/20 text-white font-semibold rounded-full transition-all duration-300 text-lg flex items-center justify-center space-x-3 shadow-sm hover:shadow-md">
+                    <span class="text-2xl">🇻🇳</span> <span>Tiếng Việt</span>
+                </button>
+                <button onclick="setLanguage('ko')" class="w-full py-4 px-6 bg-white/10 hover:bg-white/30 border border-white/20 text-white font-semibold rounded-full transition-all duration-300 text-lg flex items-center justify-center space-x-3 shadow-sm hover:shadow-md">
+                    <span class="text-2xl">🇰🇷</span> <span>한국어</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop Navigation (Sticky Top) -->
+    <nav class="hidden sm:block sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm w-full">
+        <div class="max-w-4xl mx-auto flex justify-between items-center px-6 py-4">
+            <div class="flex space-x-10">
+                <a href="#tong-quan" class="text-gray-700 hover:text-brand-green font-bold text-sm uppercase tracking-wider transition-colors" data-i18n="nav_overview">Tổng quan</a>
+                <a href="#hoat-dong" class="text-gray-700 hover:text-brand-green font-bold text-sm uppercase tracking-wider transition-colors" data-i18n="nav_activities">Hoạt động</a>
+                <a href="#lich-trinh" class="text-gray-700 hover:text-brand-green font-bold text-sm uppercase tracking-wider transition-colors" data-i18n="nav_schedule">Lịch trình</a>
+                <a href="#thu-vien" class="text-gray-700 hover:text-brand-green font-bold text-sm uppercase tracking-wider transition-colors" data-i18n="nav_gallery">Thư viện</a>
+            </div>
+            <!-- Language Switcher -->
+            <div class="flex items-center space-x-2 bg-gray-100/50 p-1 rounded-full border border-gray-200">
+                <button onclick="setLanguage('vi')" id="btn-lang-vi-desktop" class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 opacity-50 hover:opacity-100">
+                    <span class="text-xl">🇻🇳</span>
+                </button>
+                <button onclick="setLanguage('ko')" id="btn-lang-ko-desktop" class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 opacity-50 hover:opacity-100">
+                    <span class="text-xl">🇰🇷</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Poster Container -->
+    <div class="max-w-4xl mx-auto bg-white sm:shadow-2xl sm:rounded-3xl overflow-hidden sm:border border-gray-100 relative mt-0 sm:mt-4">
+
+        <!-- Header / Organizers -->
+        <div class="bg-brand-light px-4 sm:px-8 py-5 flex flex-col sm:flex-row justify-between items-center border-b border-green-100 gap-5 sm:gap-0">
+            <!-- Organizer -->
+            <div class="flex flex-col sm:flex-row items-center text-center sm:text-left">
+                <img src="logo-KHN-1.png" alt="Logo Hội người Hàn tại Hà Nội" class="h-12 sm:h-11 w-auto object-contain mb-2 sm:mb-0 sm:mr-3" referrerPolicy="no-referrer">
+                <div>
+                    <p class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider" data-i18n="org_host">Đơn vị tổ chức</p>
+                    <p class="font-bold text-brand-dark text-sm sm:text-base" data-i18n="org_host_name">Hội người Hàn tại Hà Nội</p>
+                </div>
+            </div>
+            <!-- Co-organizer -->
+            <div class="flex flex-col sm:flex-row items-center text-center sm:text-right">
+                <div class="order-2 sm:order-1 mt-2 sm:mt-0 sm:mr-3">
+                    <p class="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider" data-i18n="org_co">Đơn vị phối hợp</p>
+                    <p class="font-bold text-brand-green text-sm sm:text-base" data-i18n="org_co_name">Good Neighbors Việt Nam</p>
+                </div>
+                <img src="logo-GNI-1.png" alt="Logo Good Neighbors Việt Nam" class="h-12 sm:h-11 w-auto object-contain order-1 sm:order-2" referrerPolicy="no-referrer">
+            </div>
+        </div>
+
+        <!-- Hero Title Section -->
+        <div id="tong-quan" class="relative bg-brand-dark text-white text-center py-12 sm:py-16 px-4 sm:px-6 overflow-hidden">
+            <!-- Decorative background elements -->
+            <div class="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('IMG_2134.JPG')] bg-cover bg-center"></div>
+            <div class="absolute -top-24 -left-24 w-64 h-64 bg-brand-green rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
+            <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-brand-blue rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
+            
+            <div class="relative z-10">
+                <span class="inline-block py-1 px-3 rounded-full bg-brand-yellow text-yellow-900 text-sm font-bold tracking-widest mb-4 shadow-sm" data-i18n="hero_tag">
+                    TOUR DU LỊCH TRẢI NGHIỆM
+                </span>
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
+                    <span data-i18n="hero_title_1">CHƯƠNG TRÌNH TRẢI NGHIỆM</span> <br/>
+                    <span class="text-brand-yellow" data-i18n="hero_title_2">SẺ CHIA CÙNG GIA ĐÌNH</span>
+                </h1>
+                <p class="text-lg md:text-xl text-green-100 max-w-2xl mx-auto font-medium" data-i18n="hero_desc">
+                    Hành trình kết nối văn hóa, khám phá thiên nhiên và lan tỏa yêu thương.
+                </p>
+            </div>
+        </div>
+
+        <!-- Key Information Grid -->
+        <div class="bg-white shadow-md rounded-2xl mx-4 sm:mx-6 -mt-8 relative z-20 grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+            <!-- Time -->
+            <div class="p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0 text-brand-blue">
+                    <i class="far fa-clock text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm text-gray-500 font-bold uppercase" data-i18n="info_time">Thời gian</h3>
+                    <p class="font-bold text-gray-800 text-lg" data-i18n="info_time_val">1 Ngày</p>
+                    <p class="text-sm text-gray-500" data-i18n="info_time_desc">Đi và về trong ngày</p>
+                </div>
+            </div>
+            
+            <!-- Location -->
+            <div class="p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0 text-brand-green">
+                    <i class="fas fa-map-marker-alt text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm text-gray-500 font-bold uppercase" data-i18n="info_loc">Địa điểm</h3>
+                    <p class="font-bold text-gray-800 text-lg" data-i18n="info_loc_val">Thịnh Lang CDP</p>
+                    <p class="text-sm text-gray-500" data-i18n="info_loc_desc">Cách trung tâm HN ~70km</p>
+                </div>
+            </div>
+
+            <!-- Audience -->
+            <div class="p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-yellow-50 flex items-center justify-center flex-shrink-0 text-brand-yellow">
+                    <i class="fas fa-home text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm text-gray-500 font-bold uppercase" data-i18n="info_target">Đối tượng</h3>
+                    <p class="font-bold text-gray-800 text-lg" data-i18n="info_target_val">10 - 15 Gia đình</p>
+                    <p class="text-sm text-gray-500" data-i18n="info_target_desc">Người Hàn sinh sống tại HN</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content / Infographic Timeline -->
+        <div id="hoat-dong" class="p-4 sm:p-8 md:p-12">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-gray-800 mb-3" data-i18n="act_title">Hoạt Động Nổi Bật</h2>
+                <div class="w-24 h-1 bg-brand-green mx-auto rounded-full"></div>
+            </div>
+
+            <div class="space-y-12">
+                
+                <!-- Activity 1 -->
+                <div class="flex flex-col md:flex-row gap-8 items-center">
+                    <div class="w-full md:w-1/2 flex gap-4">
+                        <div class="w-1/2 image-container rounded-2xl overflow-hidden shadow-lg h-64 img-fallback relative">
+                             <img src="IMG_2134.JPG" alt="Nhà bè cá lồng" class="w-full h-full object-cover absolute inset-0 z-10" onerror="this.style.display='none'">
+                             <span class="absolute z-0 text-gray-500 px-4">[Ảnh Lồng Cá: IMG_2134.JPG]</span>
+                        </div>
+                        <div class="w-1/2 image-container rounded-2xl overflow-hidden shadow-lg h-64 img-fallback relative mt-8">
+                             <img src="HSON4690.JPG" alt="Chèo SUP Sông Đà" class="w-full h-full object-cover absolute inset-0 z-10" onerror="this.style.display='none'">
+                             <span class="absolute z-0 text-gray-500 px-4">[Ảnh Chèo SUP: HSON4690.JPG]</span>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <div class="inline-block px-3 py-1 bg-blue-100 text-brand-blue rounded-full text-sm font-bold mb-3" data-i18n="act_1_tag">01. Khám phá Sông nước</div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3" data-i18n="act_1_title">Nuôi cá lồng & Thể thao nước</h3>
+                        <p class="text-gray-600 mb-4" data-i18n="act_1_desc">Lên thuyền khám phá mô hình nhóm sinh kế nuôi cá lồng trên Sông Đà hùng vĩ. Thư giãn và vui chơi hết mình với hoạt động chèo thuyền SUP trên mặt nước xanh mát.</p>
+                        <ul class="text-gray-600 space-y-2 text-sm">
+                            <li><i class="fas fa-check text-brand-blue mr-2"></i> <span data-i18n="act_1_li_1">Tham quan nhà bè nổi nuôi cá lồng</span></li>
+                            <li><i class="fas fa-check text-brand-blue mr-2"></i> <span data-i18n="act_1_li_2">Tự tay chuẩn bị thức ăn cho cá</span></li>
+                            <li><i class="fas fa-check text-brand-blue mr-2"></i> <span data-i18n="act_1_li_3">Chèo thuyền SUP an toàn cùng chuyên gia</span></li>
+                            <li><i class="fas fa-check text-brand-blue mr-2"></i> <span data-i18n="act_1_li_4">Thưởng ngoạn cảnh đẹp hồ Sông Đà</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Activity 2 -->
+                <div class="flex flex-col md:flex-row-reverse gap-8 items-center">
+                    <div class="w-full md:w-1/2 image-container rounded-2xl overflow-hidden shadow-lg h-64 img-fallback relative">
+                        <img src="7e2cf9ca430bcd55941a.jpg" alt="Thu hoạch sả Đồng Chụa" class="w-full h-full object-cover absolute inset-0 z-10" onerror="this.style.display='none'">
+                        <!-- Text shows only if image fails to load in preview -->
+                        <span class="absolute z-0 text-gray-500 px-4">[Ảnh thu hoạch sả: 7e2cf9ca430bcd55941a.jpg]</span>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <div class="inline-block px-3 py-1 bg-green-100 text-brand-dark rounded-full text-sm font-bold mb-3" data-i18n="act_2_tag">02. Trải nghiệm Nông nghiệp</div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3" data-i18n="act_2_title">Nhóm sinh kế trồng cây sả</h3>
+                        <p class="text-gray-600 mb-4" data-i18n="act_2_desc">Ghé thăm xóm Đồng Chụa, cùng người dân bản địa tìm hiểu về mô hình sinh kế trồng cây sả. Các gia đình sẽ được trực tiếp trải nghiệm thu hoạch sả giữa thiên nhiên trong lành.</p>
+                        <ul class="text-gray-600 space-y-2 text-sm">
+                            <li><i class="fas fa-check text-brand-green mr-2"></i> <span data-i18n="act_2_li_1">Tham quan đồi sả bát ngát</span></li>
+                            <li><i class="fas fa-check text-brand-green mr-2"></i> <span data-i18n="act_2_li_2">Trải nghiệm cắt sả thực tế</span></li>
+                            <li><i class="fas fa-check text-brand-green mr-2"></i> <span data-i18n="act_2_li_3">Mặc trang phục truyền thống người Dao</span></li>
+                            <li><i class="fas fa-check text-brand-green mr-2"></i> <span data-i18n="act_2_li_4">Giao lưu cùng nông dân địa phương</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Activity 3 & 4 (Grid) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+                    
+                    <!-- Culture/Food -->
+                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
+                        <div class="image-container rounded-xl overflow-hidden h-48 mb-6 img-fallback relative">
+                            <img src="1O5A0286-2.JPG" alt="Văn hóa ẩm thực" class="w-full h-full object-cover absolute inset-0 z-10" onerror="this.style.display='none'">
+                            <span class="absolute z-0 text-gray-500 px-4">[Ảnh Ẩm thực: 1O5A0286-2.JPG]</span>
+                        </div>
+                        <div class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold mb-3" data-i18n="act_3_tag">03. Giao lưu Văn hóa</div>
+                        <h4 class="text-xl font-bold text-gray-800 mb-2" data-i18n="act_3_title">Ẩm Thực Bản Địa</h4>
+                        <p class="text-sm text-gray-600" data-i18n="act_3_desc">Thưởng thức những món ăn đặc sản truyền thống, giao lưu văn hóa và trò chuyện cùng những người dân địa phương ngay trên lòng hồ Hòa Bình.</p>
+                    </div>
+
+                    <!-- Charity/Sharing -->
+                    <div class="bg-brand-light rounded-2xl p-6 border border-green-100 hover:shadow-lg transition-shadow">
+                        <div class="image-container rounded-xl overflow-hidden h-48 mb-6 img-fallback relative">
+                            <img src="20251119_095805-2.jpg" alt="Hoạt động sẻ chia" class="w-full h-full object-cover absolute inset-0 z-10" onerror="this.style.display='none'">
+                            <span class="absolute z-0 text-gray-500 px-4">[Ảnh Thiện nguyện: 20251119_095805-2.jpg]</span>
+                        </div>
+                        <div class="inline-block px-3 py-1 bg-green-200 text-brand-dark rounded-full text-xs font-bold mb-3" data-i18n="act_4_tag">04. Trách nhiệm Xã hội</div>
+                        <h4 class="text-xl font-bold text-brand-dark mb-2" data-i18n="act_4_title">Lan Tỏa Yêu Thương</h4>
+                        <p class="text-sm text-brand-dark opacity-90" data-i18n="act_4_desc">Cùng Good Neighbors Việt Nam tổ chức các hoạt động quyên góp, trao tặng quà và tương tác vui chơi mang lại nụ cười cho trẻ em tại địa phương.</p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div id="lich-trinh" class="p-4 sm:p-8 md:p-12 bg-gray-50 border-t border-gray-100">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-gray-800 mb-3" data-i18n="sched_title">Lịch Trình Chi Tiết</h2>
+                <div class="w-24 h-1 bg-brand-green mx-auto rounded-full"></div>
+            </div>
+
+            <div class="space-y-12">
+                <!-- S1 -->
+                <div>
+                    <h3 class="text-xl font-bold text-brand-dark mb-4 flex items-center"><i class="fas fa-route mr-2"></i> <span data-i18n="sched_s1_title">TOUR S1: Bến Cảng Ba Cấp</span></h3>
+                    
+                    <!-- Desktop Table View -->
+                    <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-brand-light text-brand-dark text-sm uppercase tracking-wider">
+                                    <th class="p-4 border-b border-green-100 w-1/4" data-i18n="sched_time">Thời gian</th>
+                                    <th class="p-4 border-b border-green-100 w-1/6" data-i18n="sched_duration">Thời lượng</th>
+                                    <th class="p-4 border-b border-green-100" data-i18n="sched_activity">Hoạt động</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-gray-600 divide-y divide-gray-50">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">07:00 – 09:30</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">2h30p</td>
+                                    <td class="p-4" data-i18n="s1_1">Di chuyển từ Hà Nội đến Bến cảng Ba Cấp, phường Thống Nhất.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">09:30 – 09:45</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">15p</td>
+                                    <td class="p-4" data-i18n="s1_2">Thăm hộ gia đình chị Nguyễn Thị Nga – thành viên nhóm nuôi cá lồng trên sông tại tổ Vôi, phường Thống Nhất.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">09:45 – 10:15</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">30p</td>
+                                    <td class="p-4" data-i18n="s1_3">Chia sẻ về mô hình phát triển cộng đồng và quá trình hình thành, phát triển của nhóm nuôi cá lồng.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">10:15 – 12:00</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">1h45p</td>
+                                    <td class="p-4" data-i18n="s1_4">Thăm các lồng cá và trải nghiệm các hoạt động nuôi cá lồng (chuẩn bị thức ăn, cho cá ăn, quan sát cá, chèo SUP v.v.).</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">12:15 – 13:30</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">1h15p</td>
+                                    <td class="p-4" data-i18n="s1_5">Ăn trưa.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">13:30 – 14:30</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">1h</td>
+                                    <td class="p-4" data-i18n="s1_6">Lên tàu về lại Cảng Ba cấp và di chuyển đến nhóm Sả.<br/>Thăm hộ gia đình anh Triệu Duy Thân – trưởng nhóm trồng cây sả tại xóm Đồng Chụa, Tổ 9, phường Thống Nhất.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">14:30 – 15:00</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">30p</td>
+                                    <td class="p-4" data-i18n="s1_7">Chia sẻ về quá trình hình thành và phát triển của nhóm trồng dược liệu.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">15:00 – 16:00</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">1h</td>
+                                    <td class="p-4" data-i18n="s1_8">Thăm vườn dược liệu và trải nghiệm các hoạt động văn hóa truyền thống của người Dao (mặc trang phục người Dao, thu hoạch sả, ủ men rượu, v.v.).</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">16:00 – 16:45</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">45p</td>
+                                    <td class="p-4" data-i18n="s1_9">Thăm hộ gia đình trẻ em được hỗ trợ bởi GNV (nhà chị Triệu Thị Tuyết thành viên nhóm Sả).<br/>Gia đình Hàn Quốc và trẻ em Việt Nam cùng tham gia hoạt động: Trò chơi đơn giản, Vẽ tranh …vv</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">16:45 – 18:45</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">2h</td>
+                                    <td class="p-4" data-i18n="s1_10">Di Chuyển về Hà Nội</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="md:hidden space-y-4">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">07:00 – 09:30</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">2h30p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_1">Di chuyển từ Hà Nội đến Bến cảng Ba Cấp, phường Thống Nhất.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">09:30 – 09:45</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">15p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_2">Thăm hộ gia đình chị Nguyễn Thị Nga – thành viên nhóm nuôi cá lồng Sông Đà tại tổ Vôi, phường Thống Nhất.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">09:45 – 10:15</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">30p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_3">Chia sẻ về mô hình phát triển cộng đồng và quá trình hình thành, phát triển của nhóm nuôi cá lồng.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">10:15 – 12:00</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">1h45p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_4">Thăm các lồng cá và trải nghiệm các hoạt động nuôi cá lồng (chuẩn bị thức ăn, cho cá ăn, quan sát cá, chèo SUP v.v.).</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">12:15 – 13:30</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">1h15p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_5">Ăn trưa.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">13:30 – 14:30</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">1h</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_6">Lên tàu về lại Cảng Ba cấp và di chuyển đến nhóm Sả.<br/>Thăm hộ gia đình anh Triệu Duy Thân – trưởng nhóm trồng cây sả tại xóm Đồng Chụa, tổ 9, phường Thống Nhất.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">14:30 – 15:00</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">30p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_7">Chia sẻ về quá trình hình thành và phát triển của nhóm trồng dược liệu.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">15:00 – 16:00</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">1h</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_8">Thăm vườn dược liệu và trải nghiệm các hoạt động văn hóa truyền thống của người Dao (mặc trang phục người Dao, thu hoạch sả, ủ men rượu, v.v.).</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">16:00 – 16:45</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">45p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_9">Thăm hộ gia đình trẻ em được hỗ trợ bởi GNV (nhà chị Triệu Thị Tuyết thành viên nhóm Sả).<br/>Gia đình Hàn Quốc và trẻ em Việt Nam cùng tham gia hoạt động: Trò chơi đơn giản, Vẽ tranh …vv</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-green"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">16:45 – 18:45</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">2h</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s1_10">Di Chuyển về Hà Nội</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- S2 -->
+                <div>
+                    <h3 class="text-xl font-bold text-brand-blue mb-4 flex items-center"><i class="fas fa-water mr-2"></i> <span data-i18n="sched_s2_title">TOUR S2: Thủy Điện Hòa Bình</span></h3>
+                    
+                    <!-- Desktop Table View -->
+                    <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-blue-50 text-brand-blue text-sm uppercase tracking-wider">
+                                    <th class="p-4 border-b border-blue-100 w-1/4" data-i18n="sched_time">Thời gian</th>
+                                    <th class="p-4 border-b border-blue-100 w-1/6" data-i18n="sched_duration">Thời lượng</th>
+                                    <th class="p-4 border-b border-blue-100" data-i18n="sched_activity">Hoạt động</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-gray-600 divide-y divide-gray-50">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">07:00 – 09:30</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">2h30p</td>
+                                    <td class="p-4" data-i18n="s2_1">Di chuyển từ Hà Nội đến Nhà máy Thủy Điện Hòa Bình, phường Hòa Bình.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">09:30 – 10:15</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">45p</td>
+                                    <td class="p-4" data-i18n="s2_2">Thăm quan nhà máy Thủy điện Hòa Bình</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">10:15 – 10:45</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">30p</td>
+                                    <td class="p-4" data-i18n="s2_3">Di chuyển lên Cảng Bích Hạ - Đi tàu đến nhà bè của chị Nguyễn Thị Nga thành viên nhóm nuôi cá lồng sông Đà</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">10:45 - 11:00</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">15p</td>
+                                    <td class="p-4" data-i18n="s2_4">Chia sẻ về mô hình phát triển cộng đồng và quá trình hình thành, phát triển của nhóm nuôi cá lồng.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">11:00 – 12:15</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">45p</td>
+                                    <td class="p-4" data-i18n="s2_5">Thăm các lồng cá và trải nghiệm các hoạt động nuôi cá lồng (chuẩn bị thức ăn, cho cá ăn, quan sát cá, chèo SUP v.v.).</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">12:15 – 13:30</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">1h15p</td>
+                                    <td class="p-4" data-i18n="s2_6">Ăn trưa.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">13:30 – 14:30</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">1h</td>
+                                    <td class="p-4" data-i18n="s2_7">Lên tàu về lại cảng Bích Hạ và di chuyển đến nhóm Sả.<br/>Thăm hộ gia đình anh Triệu Duy Thân – thành viên nhóm trồng cây sả tại xóm Đồng Chụa, tổ 9, phường Thống Nhất.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">14:30 – 15:00</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">30p</td>
+                                    <td class="p-4" data-i18n="s2_8">Chia sẻ về quá trình hình thành và phát triển của nhóm trồng dược liệu.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">15:00 – 16:00</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">1h</td>
+                                    <td class="p-4" data-i18n="s2_9">Thăm vườn dược liệu và trải nghiệm các hoạt động văn hóa truyền thống của người Dao (mặc trang phục người Dao, thu hoạch sả, ủ men rượu, v.v.).</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">16:00 – 16:45</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">45p</td>
+                                    <td class="p-4" data-i18n="s2_10">Thăm hộ gia đình trẻ em được hỗ trợ bởi GNV (nhà chị Triệu Thị Tuyết thành viên nhóm Sả).<br/>Gia đình Hàn Quốc và trẻ em Việt Nam cùng tham gia hoạt động: Trò chơi đơn giản, Vẽ tranh …vv</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800 whitespace-nowrap">16:45 – 18:45</td>
+                                    <td class="p-4 text-gray-500 whitespace-nowrap">2h</td>
+                                    <td class="p-4" data-i18n="s2_11">Di Chuyển về Hà Nội</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="md:hidden space-y-4">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">07:00 – 09:30</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">2h30p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_1">Di chuyển từ Hà Nội đến Nhà máy Thủy Điện Hòa Bình, phường Hòa Bình.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">09:30 – 10:15</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">45p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_2">Thăm quan nhà máy Thủy điện Hòa Bình</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">10:15 – 10:45</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">30p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_3">Di chuyển lên Cảng Bích Hạ - Đi tàu đến nhà bè của chị Nguyễn Thị Nga thành viên nhóm nuôi cá lồng sông Đà</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">10:45 - 11:00</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">15p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_4">Chia sẻ về mô hình phát triển cộng đồng và quá trình hình thành, phát triển của nhóm nuôi cá lồng.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">11:00 – 12:15</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">45p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_5">Thăm các lồng cá và trải nghiệm các hoạt động nuôi cá lồng (chuẩn bị thức ăn, cho cá ăn, quan sát cá, chèo SUP v.v.).</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">12:15 – 13:30</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">1h15p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_6">Ăn trưa.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">13:30 – 14:30</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">1h</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_7">Lên tàu về lại cảng Bích Hạ và di chuyển đến nhóm Sả.<br/>Thăm hộ gia đình anh Triệu Duy Thân – thành viên nhóm trồng cây sả tại xóm Đồng Chụa, tổ 9, phường Thống Nhất.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">14:30 – 15:00</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">30p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_8">Chia sẻ về quá trình hình thành và phát triển của nhóm trồng dược liệu.</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">15:00 – 16:00</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">1h</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_9">Thăm vườn dược liệu và trải nghiệm các hoạt động văn hóa truyền thống của người Dao (mặc trang phục người Dao, thu hoạch sả, ủ men rượu, v.v.).</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">16:00 – 16:45</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">45p</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_10">Thăm hộ gia đình trẻ em được hỗ trợ bởi GNV (nhà chị Triệu Thị Tuyết thành viên nhóm Sả).<br/>Gia đình Hàn Quốc và trẻ em Việt Nam cùng tham gia hoạt động: Trò chơi đơn giản, Vẽ tranh …vv</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="font-bold text-gray-800 text-lg">16:45 – 18:45</span>
+                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">2h</span>
+                            </div>
+                            <p class="text-gray-600 text-sm" data-i18n="s2_11">Di Chuyển về Hà Nội</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gallery Section -->
+        <div id="thu-vien" class="p-4 sm:p-8 md:p-12 border-t border-gray-100">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-gray-800 mb-3" data-i18n="gal_title">Thư Viện Hình Ảnh</h2>
+                <div class="w-24 h-1 bg-brand-green mx-auto rounded-full"></div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="gallery-grid">
+                <div class="gallery-item aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer" data-index="0" data-type="image" data-src="IMG_2134.JPG" data-caption="cap_1">
+                    <img src="IMG_2134.JPG" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" alt="Gallery image">
+                </div>
+                <div class="gallery-item aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer" data-index="1" data-type="image" data-src="HSON4690.JPG" data-caption="cap_2">
+                    <img src="HSON4690.JPG" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" alt="Gallery image">
+                </div>
+                <div class="gallery-item aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer" data-index="2" data-type="image" data-src="7e2cf9ca430bcd55941a.jpg" data-caption="cap_3">
+                    <img src="7e2cf9ca430bcd55941a.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" alt="Gallery image">
+                </div>
+                <div class="gallery-item aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer" data-index="3" data-type="image" data-src="1O5A0286-2.JPG" data-caption="cap_4">
+                    <img src="1O5A0286-2.JPG" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" alt="Gallery image">
+                </div>
+                <div class="gallery-item aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer" data-index="4" data-type="image" data-src="20251119_095805-2.jpg" data-caption="cap_5">
+                    <img src="20251119_095805-2.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" alt="Gallery image">
+                </div>
+                <div class="gallery-item aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-brand-light flex flex-col items-center justify-center cursor-pointer hover:bg-green-100 transition-colors" data-index="5" data-type="video" data-src="xMPQY6INskM" data-caption="cap_6">
+                    <i class="fas fa-play-circle text-4xl text-brand-green mb-2"></i>
+                    <p class="font-bold text-sm text-brand-dark" data-i18n="gal_video">Video Trải Nghiệm</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Poster Section / Banner Button -->
+        <div class="px-4 py-8 sm:px-8 md:px-12 bg-gradient-to-b from-white to-green-50/40 border-t border-gray-100 text-center">
+            <div class="max-w-2xl mx-auto flex flex-col items-center">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-light text-brand-dark text-xs sm:text-sm font-semibold mb-3 border border-green-200">
+                    <i class="fas fa-bullhorn text-brand-green"></i>
+                    <span data-i18n="poster_badge">Thông Tin Chính Thức</span>
+                </div>
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2" data-i18n="poster_section_title">Poster Chương Trình</h3>
+                <p class="text-xs sm:text-sm text-gray-500 mb-5 max-w-lg" data-i18n="poster_section_desc">Bấm để xem chi tiết poster chính thức của chương trình trải nghiệm Thịnh Lãng Eco-Tour.</p>
+                <button onclick="openPosterModal()" class="group inline-flex items-center gap-3 bg-gradient-to-r from-brand-green to-emerald-600 hover:from-brand-dark hover:to-emerald-700 text-white font-bold py-3.5 px-7 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer">
+                    <span class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                        <i class="fas fa-image text-base"></i>
+                    </span>
+                    <span class="text-base sm:text-lg" data-i18n="btn_view_poster">Xem Poster Chương Trình</span>
+                    <i class="fas fa-expand-alt text-sm opacity-80 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer / CTA -->
+        <div class="bg-gray-800 text-white p-6 sm:p-8 text-center">
+            <h3 class="text-2xl font-bold mb-4" data-i18n="footer_title">Hãy cùng gia đình tạo nên những kỷ niệm khó quên!</h3>
+            <p class="text-gray-400 mb-6 max-w-xl mx-auto" data-i18n="footer_desc">Số lượng tham gia có hạn (chỉ từ 10 - 15 gia đình). Vui lòng đăng ký sớm để ban tổ chức chuẩn bị chu đáo nhất.</p>
+            <button onclick="openRegisterModal()" class="bg-brand-green hover:bg-brand-dark text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:-translate-y-1 text-lg cursor-pointer">
+                <i class="fas fa-paper-plane mr-2"></i> <span data-i18n="footer_btn">Đăng Ký Tham Gia Ngay</span>
+            </button>
+            <p class="mt-6 text-sm text-gray-500 border-t border-gray-700 pt-6" data-i18n="footer_contact">
+                Liên hệ hỗ trợ: Hội người Hàn tại Hà Nội | Hotline: xxx-xxxx-xxxx
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Mobile Navigation (Fixed Bottom) -->
+    <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-[90] bg-white/80 backdrop-blur-md border-t border-gray-200 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] w-full" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="flex justify-around items-center px-2 py-3 relative">
+            <a href="#tong-quan" class="flex flex-col items-center text-gray-500 hover:text-brand-green font-bold uppercase tracking-wider transition-colors">
+                <i class="fas fa-info-circle text-xl mb-1"></i>
+                <span class="text-[10px] whitespace-nowrap" data-i18n="nav_overview">Tổng quan</span>
+            </a>
+            <a href="#hoat-dong" class="flex flex-col items-center text-gray-500 hover:text-brand-green font-bold uppercase tracking-wider transition-colors">
+                <i class="fas fa-leaf text-xl mb-1"></i>
+                <span class="text-[10px] whitespace-nowrap" data-i18n="nav_activities">Hoạt động</span>
+            </a>
+            <a href="#lich-trinh" class="flex flex-col items-center text-gray-500 hover:text-brand-green font-bold uppercase tracking-wider transition-colors">
+                <i class="fas fa-calendar-alt text-xl mb-1"></i>
+                <span class="text-[10px] whitespace-nowrap" data-i18n="nav_schedule">Lịch trình</span>
+            </a>
+            <a href="#thu-vien" class="flex flex-col items-center text-gray-500 hover:text-brand-green font-bold uppercase tracking-wider transition-colors">
+                <i class="fas fa-images text-xl mb-1"></i>
+                <span class="text-[10px] whitespace-nowrap" data-i18n="nav_gallery">Thư viện</span>
+            </a>
+            <!-- Mobile Language Switcher Toggle -->
+            <button onclick="toggleMobileLangMenu()" class="flex flex-col items-center text-gray-500 hover:text-brand-green font-bold uppercase tracking-wider transition-colors relative min-w-[60px]">
+                <i class="fas fa-globe text-xl mb-1"></i>
+                <span class="text-[10px] whitespace-nowrap" data-i18n="nav_language">Ngôn ngữ</span>
+            </button>
+            
+            <!-- Mobile Language Menu Popup -->
+            <div id="mobile-lang-menu" class="absolute bottom-[calc(100%+0.5rem)] right-2 bg-white/95 backdrop-blur-xl border border-gray-200 rounded-2xl shadow-xl p-2 flex flex-col gap-1 hidden opacity-0 scale-95 transform transition-all duration-200 origin-bottom-right overflow-hidden z-[100]">
+                <button onclick="setLanguage('vi'); toggleMobileLangMenu()" id="btn-lang-vi-mobile" class="flex items-center justify-center space-x-3 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors opacity-50">
+                    <span class="text-2xl leading-none">🇻🇳</span> <span class="text-base font-bold text-gray-700 leading-none">VN</span>
+                </button>
+                <button onclick="setLanguage('ko'); toggleMobileLangMenu()" id="btn-lang-ko-mobile" class="flex items-center justify-center space-x-3 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors opacity-50">
+                    <span class="text-2xl leading-none">🇰🇷</span> <span class="text-base font-bold text-gray-700 leading-none">KR</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Floating Action Button (QR Code) -->
+    <div id="qr-fab-container" class="fixed z-[85] bottom-20 right-4 sm:bottom-8 sm:right-8">
+        <button id="qr-fab-btn" onclick="openQrModal()" class="group relative flex items-center gap-2.5 px-3.5 py-3.5 sm:px-5 sm:py-3.5 rounded-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-[0_8px_25px_rgba(16,185,129,0.38)] hover:shadow-[0_12px_32px_rgba(16,185,129,0.5)] transition-all duration-300 transform hover:scale-105 active:scale-95 border-2 border-white/50 cursor-pointer backdrop-blur-sm" aria-label="Mã QR Website" title="Mở mã QR Website">
+            <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white"></span>
+            </span>
+            <i class="fas fa-qrcode text-xl sm:text-2xl transition-transform duration-300 group-hover:rotate-6"></i>
+            <span class="hidden sm:inline text-xs sm:text-sm font-bold tracking-wide select-none" data-i18n="fab_qr_btn">Mã QR Web</span>
+        </button>
+    </div>
+
+    <!-- Gallery Modal -->
+    <div id="gallery-modal" class="fixed inset-0 z-[100] bg-black/95 hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
+        <!-- Header: Counter and Close -->
+        <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
+            <div id="modal-counter" class="text-white font-bold text-lg tracking-widest bg-black/50 px-4 py-1 rounded-full">1/6</div>
+            <button id="modal-close" class="text-white hover:text-brand-green transition-colors p-2">
+                <i class="fas fa-times text-4xl"></i>
+            </button>
+        </div>
+        
+        <!-- Navigation Arrows -->
+        <button id="modal-prev" class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 text-white hover:text-brand-green transition-colors p-4 z-10">
+            <i class="fas fa-chevron-left text-5xl sm:text-6xl drop-shadow-lg"></i>
+        </button>
+        <button id="modal-next" class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 text-white hover:text-brand-green transition-colors p-4 z-10">
+            <i class="fas fa-chevron-right text-5xl sm:text-6xl drop-shadow-lg"></i>
+        </button>
+
+        <!-- Content Container -->
+        <div id="modal-content" class="w-full h-full max-w-6xl max-h-[85vh] flex items-center justify-center p-4 sm:p-12 relative mt-12">
+            <!-- Image/Video will be injected here -->
+        </div>
+        <p id="modal-caption" class="absolute bottom-4 left-0 right-0 text-center text-white text-lg font-medium drop-shadow-md z-10 px-4"></p>
+    </div>
+
+    <!-- Registration Form Modal -->
+    <div id="register-modal" class="fixed inset-0 z-[110] bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
+        <!-- Modal Card Container -->
+        <div id="register-modal-box" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 relative border border-gray-100 transform scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto">
+            <!-- Close Button in Top-Right Corner (Bắt buộc click nút này mới đóng) -->
+            <button id="register-modal-close" type="button" aria-label="Đóng form" class="absolute top-5 right-5 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 w-9 h-9 rounded-full flex items-center justify-center transition-colors cursor-pointer">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+
+            <!-- Modal Header -->
+            <div class="flex items-start space-x-3.5 mb-6 pr-8">
+                <div class="w-11 h-11 rounded-2xl bg-green-50 text-brand-green flex items-center justify-center text-xl flex-shrink-0 shadow-sm border border-green-100 mt-0.5">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight" data-i18n="reg_modal_title">Đăng Ký Tham Gia Chương Trình</h3>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-1" data-i18n="reg_modal_subtitle">Vui lòng nhập thông tin để ban tổ chức liên hệ và chuẩn bị chu đáo nhất.</p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form id="register-form" onsubmit="event.preventDefault(); handleRegisterDemoSubmit();" class="space-y-4">
+                <!-- 1. Họ và tên -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5" data-i18n="reg_label_name">Họ và tên *</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                            <i class="far fa-user text-sm"></i>
+                        </span>
+                        <input type="text" id="reg-name" required class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-gray-800 text-sm focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all placeholder:text-gray-400 bg-gray-50/60 focus:bg-white" data-i18n-placeholder="reg_placeholder_name" placeholder="Nhập họ và tên...">
+                    </div>
+                </div>
+
+                <!-- 2. Số điện thoại -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5" data-i18n="reg_label_phone">Số điện thoại *</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                            <i class="fas fa-phone-alt text-xs"></i>
+                        </span>
+                        <input type="tel" id="reg-phone" required class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-gray-800 text-sm focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all placeholder:text-gray-400 bg-gray-50/60 focus:bg-white" data-i18n-placeholder="reg_placeholder_phone" placeholder="Nhập số điện thoại liên hệ...">
+                    </div>
+                </div>
+
+                <!-- 3. Địa chỉ -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5" data-i18n="reg_label_address">Địa chỉ *</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                            <i class="fas fa-map-marker-alt text-xs"></i>
+                        </span>
+                        <input type="text" id="reg-address" required class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-gray-800 text-sm focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all placeholder:text-gray-400 bg-gray-50/60 focus:bg-white" data-i18n-placeholder="reg_placeholder_address" placeholder="Địa chỉ hiện tại (Quận/Huyện, Hà Nội)...">
+                    </div>
+                </div>
+
+                <!-- 4. Lời nhắn hoặc thông tin thêm khác -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5" data-i18n="reg_label_note">Lời nhắn hoặc thông tin thêm</label>
+                    <div class="relative">
+                        <textarea id="reg-note" rows="3" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-800 text-sm focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all placeholder:text-gray-400 bg-gray-50/60 focus:bg-white resize-none" data-i18n-placeholder="reg_placeholder_note" placeholder="Số lượng thành viên, độ tuổi của trẻ em, hoặc yêu cầu đặc biệt..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Demo status message (shown on submit) -->
+                <div id="reg-demo-feedback" class="hidden p-3.5 bg-green-50 border border-green-200 rounded-xl text-brand-dark text-xs sm:text-sm font-medium flex items-center space-x-2.5">
+                    <i class="fas fa-check-circle text-brand-green text-base flex-shrink-0"></i>
+                    <span data-i18n="reg_success_toast">Đã gửi thông tin đăng ký (Bản thử nghiệm demo)!</span>
+                </div>
+
+                <!-- Nút Đăng ký ở cuối form -->
+                <div class="pt-2">
+                    <button type="submit" id="reg-btn-submit" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transform transition active:scale-[0.99] flex items-center justify-center space-x-2 text-base cursor-pointer">
+                        <i class="fas fa-paper-plane text-sm"></i>
+                        <span data-i18n="reg_btn_submit">Đăng Ký</span>
+                    </button>
+                    <p class="text-[11px] text-gray-400 text-center mt-2.5" data-i18n="reg_demo_notice">
+                        * Bản demo trải nghiệm: Dữ liệu mẫu sẽ không lưu vào hệ thống.
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Poster View Modal -->
+    <div id="poster-modal" class="fixed inset-0 z-[120] bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-6 opacity-0 transition-opacity duration-300">
+        <!-- Close Button (Top right) -->
+        <button id="poster-modal-close" onclick="closePosterModal()" aria-label="Đóng poster" class="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/80 hover:text-white bg-black/50 hover:bg-black/80 w-11 h-11 rounded-full flex items-center justify-center transition-all z-20 cursor-pointer shadow-lg border border-white/20">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <!-- Action Bar (Top center) -->
+        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 z-20">
+            <a href="poster thinh lang eco tour.png" download="Poster-Thinh-Lang-Eco-Tour.png" target="_blank" class="bg-black/50 hover:bg-black/80 text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-full border border-white/20 flex items-center gap-2 transition-all backdrop-blur-sm">
+                <i class="fas fa-download"></i>
+                <span data-i18n="poster_download">Tải Poster</span>
+            </a>
+            <a href="poster thinh lang eco tour.png" target="_blank" class="bg-black/50 hover:bg-black/80 text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-full border border-white/20 flex items-center gap-2 transition-all backdrop-blur-sm">
+                <i class="fas fa-external-link-alt"></i>
+                <span data-i18n="poster_view_full">Xem ảnh gốc</span>
+            </a>
+        </div>
+
+        <!-- Poster Content -->
+        <div id="poster-modal-box" class="relative max-w-3xl max-h-[90vh] w-auto h-auto flex flex-col items-center justify-center transform scale-95 transition-all duration-300">
+            <img src="poster thinh lang eco tour.png" alt="Poster Chương Trình Thịnh Lãng Eco-Tour" class="max-h-[82vh] max-w-full w-auto object-contain rounded-2xl shadow-2xl border border-white/10 select-none">
+            <p class="text-white/80 text-xs sm:text-sm mt-3 text-center font-medium drop-shadow-md" data-i18n="poster_caption">
+                Poster chính thức: Thịnh Lãng Eco-Tour (Thung Nai - Cao Phong - Hòa Bình)
+            </p>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="fixed inset-0 z-[125] bg-black/60 backdrop-blur-md hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div id="qr-modal-box" class="relative max-w-sm sm:max-w-md w-full bg-white/95 backdrop-blur-xl border border-white/60 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] p-6 sm:p-8 text-center transform scale-95 transition-all duration-300">
+            <!-- Close Button -->
+            <button onclick="closeQrModal()" aria-label="Đóng mã QR" class="absolute top-4 right-4 sm:top-5 sm:right-5 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition-all cursor-pointer shadow-xs">
+                <i class="fas fa-times text-base sm:text-lg"></i>
+            </button>
+
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold tracking-wider mb-2.5">
+                <i class="fas fa-leaf text-emerald-600 text-xs"></i>
+                <span data-i18n="qr_badge">Thịnh Lãng Eco-Tour</span>
+            </div>
+
+            <!-- Title & Subtitle -->
+            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 leading-snug" data-i18n="qr_title">Quét Mã Truy Cập Website</h3>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1.5 mb-5 max-w-xs mx-auto" data-i18n="qr_subtitle">Quét bằng camera điện thoại để truy cập hoặc chia sẻ nhanh chóng website</p>
+
+            <!-- QR Code Card -->
+            <div class="relative inline-block p-4 sm:p-5 bg-white rounded-2xl border-2 border-emerald-100 shadow-[0_8px_30px_rgb(0,0,0,0.06)] mx-auto group">
+                <!-- Corner decorative accents -->
+                <div class="absolute -top-1 -left-1 w-3.5 h-3.5 border-t-2 border-l-2 border-emerald-500 rounded-tl"></div>
+                <div class="absolute -top-1 -right-1 w-3.5 h-3.5 border-t-2 border-r-2 border-emerald-500 rounded-tr"></div>
+                <div class="absolute -bottom-1 -left-1 w-3.5 h-3.5 border-b-2 border-l-2 border-emerald-500 rounded-bl"></div>
+                <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 border-b-2 border-r-2 border-emerald-500 rounded-br"></div>
+                <!-- Canvas QR -->
+                <canvas id="qr-code-canvas" class="w-52 h-52 sm:w-60 sm:h-60 rounded-xl mx-auto block"></canvas>
+            </div>
+
+            <!-- URL pill & Copy Button -->
+            <div class="mt-4 flex items-center justify-between gap-2 p-2 sm:p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-600">
+                <div class="flex items-center gap-1.5 min-w-0 pl-1">
+                    <i class="fas fa-link text-emerald-600 text-xs shrink-0"></i>
+                    <span class="truncate font-mono font-medium text-emerald-900 select-all">https://thinhlang-eco-tour.netlify.app</span>
+                </div>
+                <button onclick="copyQrLink()" class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 text-gray-700 font-medium transition-colors flex items-center gap-1 shrink-0 cursor-pointer shadow-xs">
+                    <i class="fas fa-copy text-xs"></i> <span id="qr-copy-text" data-i18n="qr_copy_btn">Sao chép</span>
+                </button>
+            </div>
+
+            <!-- Download Button -->
+            <button onclick="downloadQrCode()" class="w-full mt-4 py-3 sm:py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm sm:text-base shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/35 flex items-center justify-center gap-2.5 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer">
+                <i class="fas fa-download text-base"></i>
+                <span data-i18n="qr_download_btn">Tải Mã QR (PNG)</span>
+            </button>
+
+            <!-- Direct link -->
+            <div class="mt-3 text-center">
+                <a href="https://thinhlang-eco-tour.netlify.app" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-emerald-700 font-medium transition-colors">
+                    <span data-i18n="qr_direct_link">Truy cập trực tiếp</span> <i class="fas fa-external-link-alt text-[10px]"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            vi: {
+                nav_overview: "Tổng quan",
+                nav_activities: "Hoạt động",
+                nav_schedule: "Lịch trình",
+                nav_gallery: "Thư viện",
+                nav_language: "Ngôn ngữ",
+                org_host: "Đơn vị tổ chức",
+                org_host_name: "Hội người Hàn tại Hà Nội",
+                org_co: "Đơn vị phối hợp",
+                org_co_name: "Good Neighbors Việt Nam",
+                hero_tag: "TOUR DU LỊCH TRẢI NGHIỆM",
+                hero_title_1: "CHƯƠNG TRÌNH TRẢI NGHIỆM",
+                hero_title_2: "SẺ CHIA CÙNG GIA ĐÌNH",
+                hero_desc: "Hành trình kết nối văn hóa, khám phá thiên nhiên và lan tỏa yêu thương.",
+                info_time: "Thời gian",
+                info_time_val: "1 Ngày",
+                info_time_desc: "Đi và về trong ngày",
+                info_loc: "Địa điểm",
+                info_loc_val: "Thịnh Lang CDP",
+                info_loc_desc: "Cách trung tâm HN ~70km",
+                info_target: "Đối tượng",
+                info_target_val: "10 - 15 Gia đình",
+                info_target_desc: "Người Hàn sinh sống tại HN",
+                act_title: "Hoạt Động Nổi Bật",
+                act_1_tag: "01. Khám phá Sông nước",
+                act_1_title: "Nuôi cá lồng & Thể thao nước",
+                act_1_desc: "Lên thuyền khám phá mô hình nhóm sinh kế nuôi cá lồng trên Sông Đà hùng vĩ. Thư giãn và vui chơi hết mình với hoạt động chèo thuyền SUP trên mặt nước xanh mát.",
+                act_1_li_1: "Tham quan nhà bè nổi nuôi cá lồng",
+                act_1_li_2: "Tự tay chuẩn bị thức ăn cho cá",
+                act_1_li_3: "Chèo thuyền SUP an toàn cùng chuyên gia",
+                act_1_li_4: "Thưởng ngoạn cảnh đẹp hồ Sông Đà",
+                act_2_tag: "02. Trải nghiệm Nông nghiệp",
+                act_2_title: "Nhóm sinh kế trồng cây sả",
+                act_2_desc: "Ghé thăm xóm Đồng Chụa, cùng người dân bản địa tìm hiểu về mô hình sinh kế trồng cây sả. Các gia đình sẽ được trực tiếp trải nghiệm thu hoạch sả giữa thiên nhiên trong lành.",
+                act_2_li_1: "Tham quan đồi sả bát ngát",
+                act_2_li_2: "Trải nghiệm cắt sả thực tế",
+                act_2_li_3: "Mặc trang phục truyền thống người Dao",
+                act_2_li_4: "Giao lưu cùng nông dân địa phương",
+                act_3_tag: "03. Giao lưu Văn hóa",
+                act_3_title: "Ẩm Thực Bản Địa",
+                act_3_desc: "Thưởng thức những món ăn đặc sản truyền thống, giao lưu văn hóa và trò chuyện cùng những người dân địa phương ngay trên lòng hồ Hòa Bình.",
+                act_4_tag: "04. Trách nhiệm Xã hội",
+                act_4_title: "Lan Tỏa Yêu Thương",
+                act_4_desc: "Cùng Good Neighbors Việt Nam tổ chức các hoạt động quyên góp, trao tặng quà và tương tác vui chơi mang lại nụ cười cho trẻ em tại địa phương.",
+                sched_title: "Lịch Trình Chi Tiết",
+                sched_s1_title: "TOUR S1: Bến Cảng Ba Cấp",
+                sched_s2_title: "TOUR S2: Thủy Điện Hòa Bình",
+                sched_time: "Thời gian",
+                sched_duration: "Thời lượng",
+                sched_activity: "Hoạt động",
+                s1_1: "Di chuyển từ Hà Nội đến Bến cảng Ba Cấp, phường Thống Nhất.",
+                s1_2: "Thăm hộ gia đình chị Nguyễn Thị Nga – thành viên nhóm nuôi cá lồng Sông Đà tại tổ Vôi, phường Thống Nhất.",
+                s1_3: "Chia sẻ về mô hình phát triển cộng đồng và quá trình hình thành, phát triển của nhóm nuôi cá lồng.",
+                s1_4: "Thăm các lồng cá và trải nghiệm các hoạt động nuôi cá lồng (chuẩn bị thức ăn, cho cá ăn, quan sát cá, chèo SUP v.v.).",
+                s1_5: "Ăn trưa.",
+                s1_6: "Lên tàu về lại Cảng Ba cấp và di chuyển đến nhóm Sả.<br/>Thăm hộ gia đình anh Triệu Duy Thân – trưởng nhóm trồng cây sả tại xóm Đồng Chụa, Tổ 9, phường Thống Nhất.",
+                s1_7: "Chia sẻ về quá trình hình thành và phát triển của nhóm trồng dược liệu.",
+                s1_8: "Thăm vườn dược liệu và trải nghiệm các hoạt động văn hóa truyền thống của người Dao (mặc trang phục người Dao, thu hoạch sả, ủ men rượu, v.v.).",
+                s1_9: "Thăm hộ gia đình trẻ em được hỗ trợ bởi GNV (nhà chị Triệu Thị Tuyết thành viên nhóm Sả).<br/>Gia đình Hàn Quốc và trẻ em Việt Nam cùng tham gia hoạt động: Trò chơi đơn giản, Vẽ tranh …vv",
+                s1_10: "Di Chuyển về Hà Nội",
+                s2_1: "Di chuyển từ Hà Nội đến Nhà máy Thủy Điện Hòa Bình, phường Hòa Bình.",
+                s2_2: "Thăm quan nhà máy Thủy điện Hòa Bình",
+                s2_3: "Di chuyển lên Cảng Bích Hạ - Đi tàu đến nhà bè của chị Nguyễn Thị Nga thành viên nhóm nuôi cá lồng sông Đà",
+                s2_4: "Chia sẻ về mô hình phát triển cộng đồng và quá trình hình thành, phát triển của nhóm nuôi cá lồng.",
+                s2_5: "Thăm các lồng cá và trải nghiệm các hoạt động nuôi cá lồng (chuẩn bị thức ăn, cho cá ăn, quan sát cá, chèo SUP v.v.).",
+                s2_6: "Ăn trưa.",
+                s2_7: "Lên tàu về lại cảng Bích Hạ và di chuyển đến nhóm Sả.<br/>Thăm hộ gia đình anh Triệu Duy Thân – thành viên nhóm trồng cây sả tại xóm Đồng Chụa, tổ 9, phường Thống Nhất.",
+                s2_8: "Chia sẻ về quá trình hình thành và phát triển của nhóm trồng dược liệu.",
+                s2_9: "Thăm vườn dược liệu và trải nghiệm các hoạt động văn hóa truyền thống của người Dao (mặc trang phục người Dao, thu hoạch sả, ủ men rượu, v.v.).",
+                s2_10: "Thăm hộ gia đình trẻ em được hỗ trợ bởi GNV (nhà chị Triệu Thị Tuyết thành viên nhóm Sả).<br/>Gia đình Hàn Quốc và trẻ em Việt Nam cùng tham gia hoạt động: Trò chơi đơn giản, Vẽ tranh …vv",
+                s2_11: "Di Chuyển về Hà Nội",
+                gal_title: "Thư Viện Hình Ảnh",
+                gal_video: "Video Trải Nghiệm",
+                footer_title: "Hãy cùng gia đình tạo nên những kỷ niệm khó quên!",
+                footer_desc: "Số lượng tham gia có hạn (chỉ từ 10 - 15 gia đình). Vui lòng đăng ký sớm để ban tổ chức chuẩn bị chu đáo nhất.",
+                footer_btn: "Đăng Ký Tham Gia Ngay",
+                footer_contact: "Liên hệ hỗ trợ: Hội người Hàn tại Hà Nội | Hotline: xxx-xxxx-xxxx",
+                cap_1: "Khám phá vẻ đẹp Sông Đà",
+                cap_2: "Trải nghiệm chèo SUP",
+                cap_3: "Trải nghiệm thu hoạch sả",
+                cap_4: "Văn hóa ẩm thực",
+                cap_5: "Hoạt động sẻ chia",
+                cap_6: "Video Trải Nghiệm Thực Tế",
+                reg_modal_title: "Đăng Ký Tham Gia Chương Trình",
+                reg_modal_subtitle: "Vui lòng nhập thông tin để ban tổ chức liên hệ và chuẩn bị chu đáo nhất.",
+                reg_label_name: "Họ và tên *",
+                reg_placeholder_name: "Nhập họ và tên...",
+                reg_label_phone: "Số điện thoại *",
+                reg_placeholder_phone: "Nhập số điện thoại liên hệ...",
+                reg_label_address: "Địa chỉ *",
+                reg_placeholder_address: "Địa chỉ hiện tại (Quận/Huyện, Hà Nội)...",
+                reg_label_note: "Lời nhắn hoặc thông tin thêm",
+                reg_placeholder_note: "Số lượng thành viên, độ tuổi của trẻ em, hoặc yêu cầu đặc biệt...",
+                reg_btn_submit: "Đăng Ký",
+                reg_demo_notice: "* Bản demo trải nghiệm: Dữ liệu mẫu sẽ không lưu vào hệ thống.",
+                reg_success_toast: "Đã gửi thông tin đăng ký (Bản thử nghiệm demo)!",
+                poster_badge: "Thông Tin Chính Thức",
+                poster_section_title: "Poster Chương Trình",
+                poster_section_desc: "Bấm để xem chi tiết poster chính thức của chương trình trải nghiệm Thịnh Lãng Eco-Tour.",
+                btn_view_poster: "Xem Poster Chương Trình",
+                poster_download: "Tải Poster",
+                poster_view_full: "Xem ảnh gốc",
+                poster_caption: "Poster chính thức: Thịnh Lãng Eco-Tour (Thung Nai - Cao Phong - Hòa Bình)",
+                fab_qr_btn: "Mã QR Web",
+                qr_badge: "Thịnh Lãng Eco-Tour",
+                qr_title: "Quét Mã Truy Cập Website",
+                qr_subtitle: "Quét bằng camera điện thoại để truy cập hoặc chia sẻ nhanh chóng website",
+                qr_copy_btn: "Sao chép",
+                qr_download_btn: "Tải Mã QR (PNG)",
+                qr_direct_link: "Truy cập trực tiếp"
+            },
+            ko: {
+                nav_overview: "개요",
+                nav_activities: "활동",
+                nav_schedule: "일정",
+                nav_gallery: "갤러리",
+                nav_language: "언어",
+                org_host: "주최",
+                org_host_name: "하노이 한인회",
+                org_co: "협력",
+                org_co_name: "굿네이버스 베트남",
+                hero_tag: "체험 투어",
+                hero_title_1: "가족과 함께하는",
+                hero_title_2: "나눔 체험 프로그램",
+                hero_desc: "문화 교류, 자연 탐험, 그리고 사랑을 나누는 여정.",
+                info_time: "일정",
+                info_time_val: "1일",
+                info_time_desc: "당일치기",
+                info_loc: "장소",
+                info_loc_val: "틴랑 CDP",
+                info_loc_desc: "하노이 중심부에서 약 70km",
+                info_target: "대상",
+                info_target_val: "10 - 15 가족",
+                info_target_desc: "하노이 거주 한국인",
+                act_title: "주요 활동",
+                act_1_tag: "01. 강 탐험",
+                act_1_title: "가두리 양식 & 수상 스포츠",
+                act_1_desc: "웅장한 다 강에서 가두리 양식 생계 모델을 탐험하고, 시원한 물 위에서 SUP 패들보드를 즐기며 휴식을 취해보세요.",
+                act_1_li_1: "가두리 양식장 방문",
+                act_1_li_2: "물고기 먹이 주기 체험",
+                act_1_li_3: "전문가와 함께하는 안전한 SUP 패들보드",
+                act_1_li_4: "다 강 호수의 아름다운 풍경 감상",
+                act_2_tag: "02. 농업 체험",
+                act_2_title: "레몬그라스 재배 그룹",
+                act_2_desc: "동쭈아 지역을 방문하여 현지인들과 함께 레몬그라스 재배 생계 모델에 대해 알아봅니다. 맑은 자연 속에서 직접 레몬그라스를 수확하는 체험을 할 수 있습니다.",
+                act_2_li_1: "끝없는 레몬그라스 언덕 방문",
+                act_2_li_2: "레몬그라스 수확 체험",
+                act_2_li_3: "자오족 전통 의상 체험",
+                act_2_li_4: "현지 농부들과의 교류",
+                act_3_tag: "03. 문화 교류",
+                act_3_title: "현지 음식",
+                act_3_desc: "호아빈 호수에서 현지인들과 함께 전통 특산물을 맛보고 문화를 교류하는 시간.",
+                act_4_tag: "04. 사회적 책임",
+                act_4_title: "사랑 나누기",
+                act_4_desc: "굿네이버스 베트남과 함께 기부, 선물 전달, 놀이 활동을 통해 현지 아이들에게 웃음을 선사합니다.",
+                sched_title: "상세 일정",
+                sched_s1_title: "S1 투어: 바깝 항구",
+                sched_s2_title: "S2 투어: 호아빈 수력발전소",
+                sched_time: "시간",
+                sched_duration: "소요 시간",
+                sched_activity: "활동 내용",
+                s1_1: "하노이에서 통녓 프엉 바깝 항구로 이동.",
+                s1_2: "통녓 프엉 보이 지역의 다 강 가두리 양식 그룹 멤버인 응우옌 티 응아 씨 가정 방문.",
+                s1_3: "지역사회 개발 모델 및 가두리 양식 그룹의 형성 및 발전 과정 공유.",
+                s1_4: "가두리 양식장 방문 및 체험 (먹이 준비, 먹이 주기, 물고기 관찰, SUP 패들보드 등).",
+                s1_5: "점심 식사.",
+                s1_6: "바깝 항구로 돌아와 레몬그라스 그룹으로 이동.<br/>통녓 프엉 9조 동쭈아 지역의 레몬그라스 재배 그룹 리더인 찌에우 주이 탄 씨 가정 방문.",
+                s1_7: "약초 재배 그룹의 형성 및 발전 과정 공유.",
+                s1_8: "약초원 방문 및 자오족 전통 문화 체험 (자오족 전통 의상 입기, 레몬그라스 수확, 전통 술 빚기 등).",
+                s1_9: "굿네이버스 지원 아동 가정 방문 (레몬그라스 그룹 멤버 찌에우 티 뚜옛 씨 가정).<br/>한국 가족과 베트남 아동이 함께하는 활동: 간단한 게임, 그림 그리기 등",
+                s1_10: "하노이로 복귀",
+                s2_1: "하노이에서 호아빈 프엉 호아빈 수력발전소로 이동.",
+                s2_2: "호아빈 수력발전소 견학",
+                s2_3: "빅하 항구로 이동 - 배를 타고 다 강 가두리 양식 그룹 멤버 응우옌 티 응아 씨의 양식장으로 이동",
+                s2_4: "지역사회 개발 모델 및 가두리 양식 그룹의 형성 및 발전 과정 공유.",
+                s2_5: "가두리 양식장 방문 및 체험 (먹이 준비, 먹이 주기, 물고기 관찰, SUP 패들보드 등).",
+                s2_6: "점심 식사.",
+                s2_7: "빅하 항구로 돌아와 레몬그라스 그룹으로 이동.<br/>통녓 프엉 9조 동쭈아 지역의 레몬그라스 재배 그룹 멤버인 찌에우 주이 탄 씨 가정 방문.",
+                s2_8: "약초 재배 그룹의 형성 및 발전 과정 공유.",
+                s2_9: "약초원 방문 및 자오족 전통 문화 체험 (자오족 전통 의상 입기, 레몬그라스 수확, 전통 술 빚기 등).",
+                s2_10: "굿네이버스 지원 아동 가정 방문 (레몬그라스 그룹 멤버 찌에우 티 뚜옛 씨 가정).<br/>한국 가족과 베트남 아동이 함께하는 활동: 간단한 게임, 그림 그리기 등",
+                s2_11: "하노이로 복귀",
+                gal_title: "갤러리",
+                gal_video: "체험 비디오",
+                footer_title: "가족과 함께 잊지 못할 추억을 만들어보세요!",
+                footer_desc: "참가 인원이 제한되어 있습니다 (10~15가족). 원활한 준비를 위해 조기 신청 부탁드립니다.",
+                footer_btn: "지금 바로 신청하기",
+                footer_contact: "문의: 하노이 한인회 | 핫라인: xxx-xxxx-xxxx",
+                cap_1: "다 강 호수의 아름다움 탐험",
+                cap_2: "SUP 패들보드 체험",
+                cap_3: "레몬그라스 수확 체험",
+                cap_4: "현지 음식 문화",
+                cap_5: "나눔 활동",
+                cap_6: "실제 체험 비디오",
+                reg_modal_title: "프로그램 참가 신청",
+                reg_modal_subtitle: "원활한 안내 및 행사 준비를 위해 기본 정보를 입력해 주세요.",
+                reg_label_name: "성명 (이름) *",
+                reg_placeholder_name: "성명을 입력해 주세요...",
+                reg_label_phone: "연락처 (전화번호) *",
+                reg_placeholder_phone: "전화번호를 입력해 주세요...",
+                reg_label_address: "거주지 (주소) *",
+                reg_placeholder_address: "현재 거주하시는 주소 (하노이)...",
+                reg_label_note: "남기실 말씀 및 기타 정보",
+                reg_placeholder_note: "참여 가족 인원수, 자녀 연령대, 특별 요청 사항 등...",
+                reg_btn_submit: "신청하기",
+                reg_demo_notice: "* UI 체험용 데모: 실제 시스템으로 전송되지 않습니다.",
+                reg_success_toast: "참가 신청이 완료되었습니다 (체험용 데모)!",
+                poster_badge: "공식 안내",
+                poster_section_title: "프로그램 포스터",
+                poster_section_desc: "틴랑 에코 투어(Thinh Lang Eco-Tour) 공식 포스터를 확인하려면 클릭하세요.",
+                btn_view_poster: "프로그램 포스터 보기",
+                poster_download: "포스터 다운로드",
+                poster_view_full: "원본 보기",
+                poster_caption: "공식 행사 포스터: 틴랑 에코 투어 (퉁나이 - 까오퐁 - 호아빈)",
+                fab_qr_btn: "웹 QR코드",
+                qr_badge: "틴랑 에코 투어",
+                qr_title: "웹사이트 접속 QR 코드",
+                qr_subtitle: "스마트폰 카메라로 QR 코드를 스캔하여 웹사이트에 바로 접속하세요",
+                qr_copy_btn: "복사",
+                qr_download_btn: "QR 코드 다운로드 (PNG)",
+                qr_direct_link: "웹사이트 바로가기"
+            }
+        };
+
+        let currentLang = 'vi';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('appLang', lang);
+            
+            const overlay = document.getElementById('lang-overlay');
+            if(overlay && !overlay.classList.contains('hidden')) {
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 500);
+            }
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    el.setAttribute('placeholder', translations[lang][key]);
+                }
+            });
+
+            updateLanguageSwitcherUI(lang);
+
+            const modal = document.getElementById('gallery-modal');
+            if (modal && !modal.classList.contains('hidden')) {
+                updateModalCaption();
+            }
+        }
+
+        function updateLanguageSwitcherUI(lang) {
+            const viDesktop = document.getElementById('btn-lang-vi-desktop');
+            const koDesktop = document.getElementById('btn-lang-ko-desktop');
+            const viMobile = document.getElementById('btn-lang-vi-mobile');
+            const koMobile = document.getElementById('btn-lang-ko-mobile');
+
+            if (viDesktop && koDesktop) {
+                if (lang === 'vi') {
+                    viDesktop.classList.remove('opacity-50');
+                    viDesktop.classList.add('opacity-100', 'bg-white', 'shadow-sm');
+                    koDesktop.classList.remove('opacity-100', 'bg-white', 'shadow-sm');
+                    koDesktop.classList.add('opacity-50');
+                } else {
+                    koDesktop.classList.remove('opacity-50');
+                    koDesktop.classList.add('opacity-100', 'bg-white', 'shadow-sm');
+                    viDesktop.classList.remove('opacity-100', 'bg-white', 'shadow-sm');
+                    viDesktop.classList.add('opacity-50');
+                }
+            }
+
+            if (viMobile && koMobile) {
+                if (lang === 'vi') {
+                    viMobile.classList.remove('opacity-50');
+                    viMobile.classList.add('opacity-100', 'bg-gray-100');
+                    koMobile.classList.remove('opacity-100', 'bg-gray-100');
+                    koMobile.classList.add('opacity-50');
+                } else {
+                    koMobile.classList.remove('opacity-50');
+                    koMobile.classList.add('opacity-100', 'bg-gray-100');
+                    viMobile.classList.remove('opacity-100', 'bg-gray-100');
+                    viMobile.classList.add('opacity-50');
+                }
+            }
+        }
+
+        function toggleMobileLangMenu() {
+            const menu = document.getElementById('mobile-lang-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => {
+                    menu.classList.remove('opacity-0', 'scale-95');
+                    menu.classList.add('opacity-100', 'scale-100');
+                }, 10);
+            } else {
+                menu.classList.remove('opacity-100', 'scale-100');
+                menu.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                }, 150);
+            }
+        }
+
+        function updateModalCaption() {
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            const item = galleryItems[window.currentGalleryIndex || 0];
+            if(item) {
+                const capKey = item.getAttribute('data-caption');
+                const captionEl = document.getElementById('modal-caption');
+                if(captionEl && capKey) {
+                    captionEl.innerHTML = translations[currentLang][capKey];
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('appLang');
+            if (savedLang) {
+                setLanguage(savedLang);
+            } else {
+                const overlay = document.getElementById('lang-overlay');
+                if(overlay) overlay.classList.remove('hidden');
+            }
+
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            const modal = document.getElementById('gallery-modal');
+            const modalContent = document.getElementById('modal-content');
+            const modalClose = document.getElementById('modal-close');
+            const modalPrev = document.getElementById('modal-prev');
+            const modalNext = document.getElementById('modal-next');
+            const modalCounter = document.getElementById('modal-counter');
+            
+            window.currentGalleryIndex = 0;
+            const totalItems = galleryItems.length;
+
+            function openModal(index) {
+                window.currentGalleryIndex = index;
+                updateModal();
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                }, 10);
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modal.classList.add('opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modalContent.innerHTML = ''; 
+                }, 300);
+                document.body.style.overflow = '';
+            }
+
+            function showNext(e) {
+                if (e) e.stopPropagation();
+                window.currentGalleryIndex = (window.currentGalleryIndex + 1) % totalItems;
+                updateModal();
+            }
+
+            function showPrev(e) {
+                if (e) e.stopPropagation();
+                window.currentGalleryIndex = (window.currentGalleryIndex - 1 + totalItems) % totalItems;
+                updateModal();
+            }
+
+            function updateModal() {
+                const item = galleryItems[window.currentGalleryIndex];
+                const type = item.getAttribute('data-type');
+                const src = item.getAttribute('data-src');
+
+                modalCounter.textContent = `${window.currentGalleryIndex + 1}/${totalItems}`;
+                
+                if (type === 'image') {
+                    modalContent.innerHTML = `<img src="${src}" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" alt="Gallery Image ${window.currentGalleryIndex + 1}">`;
+                } else if (type === 'video') {
+                    modalContent.innerHTML = `<div class="w-full aspect-video max-w-4xl rounded-lg overflow-hidden shadow-2xl"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${src}?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+                }
+                updateModalCaption();
+            }
+
+            galleryItems.forEach((item, index) => {
+                item.addEventListener('click', () => openModal(index));
+            });
+
+            modalClose.addEventListener('click', closeModal);
+            modalNext.addEventListener('click', showNext);
+            modalPrev.addEventListener('click', showPrev);
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal || e.target === modalContent) {
+                    closeModal();
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (modal.classList.contains('hidden')) return;
+                if (e.key === 'Escape') closeModal();
+                if (e.key === 'ArrowRight') showNext();
+                if (e.key === 'ArrowLeft') showPrev();
+            });
+
+            // Registration Modal Close Event
+            const regCloseBtn = document.getElementById('register-modal-close');
+            if (regCloseBtn) {
+                regCloseBtn.addEventListener('click', closeRegisterModal);
+            }
+        });
+
+        // Global functions for Registration Form Modal
+        function openRegisterModal() {
+            const regModal = document.getElementById('register-modal');
+            const regBox = document.getElementById('register-modal-box');
+            const feedback = document.getElementById('reg-demo-feedback');
+            if (feedback) feedback.classList.add('hidden');
+            if (regModal) {
+                regModal.classList.remove('hidden');
+                setTimeout(() => {
+                    regModal.classList.remove('opacity-0');
+                    if (regBox) {
+                        regBox.classList.remove('scale-95');
+                        regBox.classList.add('scale-100');
+                    }
+                }, 10);
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeRegisterModal() {
+            const regModal = document.getElementById('register-modal');
+            const regBox = document.getElementById('register-modal-box');
+            if (regModal) {
+                regModal.classList.add('opacity-0');
+                if (regBox) {
+                    regBox.classList.remove('scale-100');
+                    regBox.classList.add('scale-95');
+                }
+                setTimeout(() => {
+                    regModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+        }
+
+        function handleRegisterDemoSubmit() {
+            const feedback = document.getElementById('reg-demo-feedback');
+            if (feedback) {
+                feedback.classList.remove('hidden');
+            }
+        }
+
+        // Global functions for Poster Modal
+        function openPosterModal() {
+            const posterModal = document.getElementById('poster-modal');
+            const posterBox = document.getElementById('poster-modal-box');
+            if (posterModal) {
+                posterModal.classList.remove('hidden');
+                setTimeout(() => {
+                    posterModal.classList.remove('opacity-0');
+                    if (posterBox) {
+                        posterBox.classList.remove('scale-95');
+                        posterBox.classList.add('scale-100');
+                    }
+                }, 10);
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closePosterModal() {
+            const posterModal = document.getElementById('poster-modal');
+            const posterBox = document.getElementById('poster-modal-box');
+            if (posterModal) {
+                posterModal.classList.add('opacity-0');
+                if (posterBox) {
+                    posterBox.classList.remove('scale-100');
+                    posterBox.classList.add('scale-95');
+                }
+                setTimeout(() => {
+                    posterModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+        }
+
+        // Global functions for QR Code Modal
+        const QR_TARGET_URL = 'https://thinhlang-eco-tour.netlify.app';
+
+        function renderQrCode() {
+            const canvas = document.getElementById('qr-code-canvas');
+            if (!canvas) return;
+            if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
+                QRCode.toCanvas(canvas, QR_TARGET_URL, {
+                    width: 240,
+                    margin: 1,
+                    color: {
+                        dark: '#166534',
+                        light: '#ffffff'
+                    },
+                    errorCorrectionLevel: 'H'
+                }, function (error) {
+                    if (error) console.error('QR code render error:', error);
+                });
+            } else {
+                console.warn('QRCode library not ready');
+            }
+        }
+
+        function openQrModal() {
+            const qrModal = document.getElementById('qr-modal');
+            const qrBox = document.getElementById('qr-modal-box');
+            if (qrModal) {
+                qrModal.classList.remove('hidden');
+                setTimeout(() => {
+                    qrModal.classList.remove('opacity-0');
+                    if (qrBox) {
+                        qrBox.classList.remove('scale-95');
+                        qrBox.classList.add('scale-100');
+                    }
+                }, 10);
+                document.body.style.overflow = 'hidden';
+                renderQrCode();
+            }
+        }
+
+        function closeQrModal() {
+            const qrModal = document.getElementById('qr-modal');
+            const qrBox = document.getElementById('qr-modal-box');
+            if (qrModal) {
+                qrModal.classList.add('opacity-0');
+                if (qrBox) {
+                    qrBox.classList.remove('scale-100');
+                    qrBox.classList.add('scale-95');
+                }
+                setTimeout(() => {
+                    qrModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+        }
+
+        function copyQrLink() {
+            navigator.clipboard.writeText(QR_TARGET_URL).then(() => {
+                const btnText = document.getElementById('qr-copy-text');
+                if (btnText) {
+                    btnText.innerText = (currentLang === 'ko') ? '복사됨!' : 'Đã chép!';
+                    btnText.classList.add('text-emerald-600', 'font-bold');
+                    setTimeout(() => {
+                        btnText.innerText = (currentLang === 'ko') ? '복사' : 'Sao chép';
+                        btnText.classList.remove('text-emerald-600', 'font-bold');
+                    }, 2000);
+                }
+            }).catch(() => {
+                prompt((currentLang === 'ko') ? '링크 복사:' : 'Sao chép liên kết:', QR_TARGET_URL);
+            });
+        }
+
+        function downloadQrCode() {
+            if (typeof QRCode === 'undefined' || !QRCode.toCanvas) {
+                const canvas = document.getElementById('qr-code-canvas');
+                if (canvas) {
+                    const a = document.createElement('a');
+                    a.download = 'QR-Thinh-Lang-Eco-Tour.png';
+                    a.href = canvas.toDataURL('image/png');
+                    a.click();
+                }
+                return;
+            }
+
+            // High-resolution branded QR card
+            const dlCanvas = document.createElement('canvas');
+            const w = 720;
+            const h = 880;
+            dlCanvas.width = w;
+            dlCanvas.height = h;
+            const ctx = dlCanvas.getContext('2d');
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+
+            // Top gradient decorative bar
+            const grad = ctx.createLinearGradient(0, 0, w, 0);
+            grad.addColorStop(0, '#15803d');
+            grad.addColorStop(0.5, '#16a34a');
+            grad.addColorStop(1, '#0d9488');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, 16);
+
+            // Subtitle badge
+            ctx.fillStyle = '#f0fdf4';
+            if (ctx.roundRect) {
+                ctx.beginPath();
+                ctx.roundRect(w / 2 - 140, 48, 280, 36, 18);
+                ctx.fill();
+                ctx.strokeStyle = '#bbf7d0';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            ctx.fillStyle = '#166534';
+            ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(currentLang === 'ko' ? '공식 웹사이트 접속' : 'WEBSITE CHÍNH THỨC', w / 2, 72);
+
+            // Main Title
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif';
+            ctx.fillText(currentLang === 'ko' ? '틴랑 에코 투어 (Thinh Lang Eco-Tour)' : 'THỊNH LÃNG ECO-TOUR', w / 2, 126);
+
+            // Tagline
+            ctx.fillStyle = '#64748b';
+            ctx.font = '500 17px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif';
+            ctx.fillText(currentLang === 'ko' ? '가족과 함께하는 나눔 체험 프로그램' : 'Chương trình trải nghiệm sẻ chia cùng gia đình', w / 2, 160);
+
+            // Generate high-res QR (460x460)
+            const qrTemp = document.createElement('canvas');
+            QRCode.toCanvas(qrTemp, QR_TARGET_URL, {
+                width: 460,
+                margin: 2,
+                color: {
+                    dark: '#14532d',
+                    light: '#ffffff'
+                },
+                errorCorrectionLevel: 'H'
+            }, function (err) {
+                if (err) console.error(err);
+
+                // Draw outer card box for QR
+                ctx.fillStyle = '#f8fafc';
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 3;
+                if (ctx.roundRect) {
+                    ctx.beginPath();
+                    ctx.roundRect(w / 2 - 250, 195, 500, 500, 24);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+
+                // Draw QR Code
+                ctx.drawImage(qrTemp, w / 2 - 230, 215, 460, 460);
+
+                // URL badge background
+                ctx.fillStyle = '#f1f5f9';
+                if (ctx.roundRect) {
+                    ctx.beginPath();
+                    ctx.roundRect(w / 2 - 250, 720, 500, 48, 14);
+                    ctx.fill();
+                    ctx.strokeStyle = '#cbd5e1';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+
+                // URL Text
+                ctx.fillStyle = '#166534';
+                ctx.font = '600 18px monospace';
+                ctx.fillText(QR_TARGET_URL, w / 2, 751);
+
+                // Footer scan instructions
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '400 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif';
+                ctx.fillText(currentLang === 'ko' ? '스마트폰 카메라로 QR 코드를 스캔하세요' : 'Dùng camera điện thoại để quét mã và truy cập website', w / 2, 810);
+
+                // Trigger download
+                const link = document.createElement('a');
+                link.download = 'QR-Thinh-Lang-Eco-Tour.png';
+                link.href = dlCanvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Event listener for poster modal and QR modal backdrop clicks
+        document.addEventListener('DOMContentLoaded', () => {
+            const posterModal = document.getElementById('poster-modal');
+            if (posterModal) {
+                posterModal.addEventListener('click', (e) => {
+                    if (e.target === posterModal) {
+                        closePosterModal();
+                    }
+                });
+            }
+
+            const qrModal = document.getElementById('qr-modal');
+            if (qrModal) {
+                qrModal.addEventListener('click', (e) => {
+                    if (e.target === qrModal) {
+                        closeQrModal();
+                    }
+                });
+            }
+        });
+
+        // Add ESC key listener for modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const qrModal = document.getElementById('qr-modal');
+                if (qrModal && !qrModal.classList.contains('hidden')) {
+                    closeQrModal();
+                    return;
+                }
+                const posterModal = document.getElementById('poster-modal');
+                if (posterModal && !posterModal.classList.contains('hidden')) {
+                    closePosterModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
